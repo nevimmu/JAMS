@@ -1,0 +1,29 @@
+[build-system]
+requires = ['setuptools>=64.0.0']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'jams'
+version = '0.0.1'
+authors = [
+	{ name='Nevimmu', email='nevimmu@gmail.com' },
+]
+description = 'JAMS Auto-Mute Sometimes'
+readme = 'README.md'
+license = { file = 'LICENSE' }
+requires-python = '>=3.7'
+dependencies = [
+	'argcomplete>=3.6.2',
+	'questionary>=2.1.0',
+	'dbus-python>=1.4.0',
+]
+
+[project.urls]
+'Homepage' = 'https://github.com/nevimmu/jams'
+'Bug Tracker' = 'https://github.com/nevimmu/jams/issues'
+
+# [tool.setuptools.packages.find]
+# where = ["src"]
+
+[project.scripts]
+jams = 'jams.jams:main'
