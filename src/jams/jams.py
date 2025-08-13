@@ -4,6 +4,7 @@ import argparse
 import questionary
 from .settings import __version__, CONF_DIR
 from .dbus_helper import DbusHelper, get_players
+from .db_helper import DbHelper
 
 def get_args():
 	'''Get the arguments'''
@@ -14,7 +15,7 @@ def get_args():
 
 	return parser.parse_args()
 
-def parse_arguments(args):
+def parse_arguments(args, db):
 	'''Parse the arguments'''
 
 	if args.version:
@@ -22,10 +23,10 @@ def parse_arguments(args):
 		sys.exit(0)
 
 	if args.setup:
-		setup()
+		setup(db)
 		sys.exit(0)
 
-def setup():
+def setup(db: DbHelper):
 	players = get_players()
 	music_choice = questionary.select(
 		'Choose your music source:',
@@ -40,8 +41,9 @@ def setup():
 		choices=browser_choices
 	).ask()
 
-	print(f'Music: {players[music_choice]}')
-	print(f'Browser: {players[browser_choice]}')
+	# Save choices to json file
+	db.set('music', music_choice)
+	db.set('browser', browser_choice)
 
 
 def loop():
@@ -50,8 +52,9 @@ def loop():
 
 def main():
 	os.makedirs(CONF_DIR, exist_ok=True)
+	db = DbHelper()
 
 	args = get_args()
-	parse_arguments(args)
+	parse_arguments(args, db)
 
 	loop()
