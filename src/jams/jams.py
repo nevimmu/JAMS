@@ -1,6 +1,7 @@
 import sys
 import os
 import argparse
+import questionary
 from .settings import __version__, CONF_DIR
 from .dbus_helper import DbusHelper, get_players
 
@@ -21,14 +22,31 @@ def parse_arguments(args):
 		sys.exit(0)
 
 	if args.setup:
-		print('Setup')
+		setup()
 		sys.exit(0)
+
+def setup():
+	players = get_players()
+	music_choice = questionary.select(
+		'Choose your music source:',
+		choices=players
+	).ask()
+
+	# Create a new list of players without music_choice
+	browser_choices = [player for player in players if player != music_choice]
+
+	browser_choice = questionary.select(
+		'Choose your browser:',
+		choices=browser_choices
+	).ask()
+
+	print(f'Music: {players[music_choice]}')
+	print(f'Browser: {players[browser_choice]}')
+
 
 def loop():
 	'''Main loop'''
-	players = get_players()
-	for p in players:
-		print(p)
+	pass
 
 def main():
 	os.makedirs(CONF_DIR, exist_ok=True)
