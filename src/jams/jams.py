@@ -1,9 +1,10 @@
 import sys
 import os
+import time
 import argparse
 import questionary
 from .settings import __version__, CONF_DIR
-from .dbus_helper import DbusHelper, get_players
+from .dbus_helper import DbusHelper, get_players, find_player
 from .db_helper import DbHelper
 
 def get_args():
@@ -46,9 +47,25 @@ def setup(db: DbHelper):
 	db.set('browser', browser_choice)
 
 
-def loop():
+def loop(db: DbHelper):
 	'''Main loop'''
-	pass
+	db.set('was_playing', False)
+	while True:
+		music = db.get('music')
+		browser = db.get('browser')
+
+		music_player = find_player(music)
+		browser_player = find_player(browser)
+
+		if music_player.is_playing() and browser_player.is_playing():
+			music_player.pause()
+			db.set('was_playing', True)
+
+		if not browser_player.is_playing() and db.get('was_playing'):
+			music_player.play()
+			db.set('was_playing', False)
+
+		time.sleep(1)
 
 def main():
 	os.makedirs(CONF_DIR, exist_ok=True)
@@ -57,4 +74,4 @@ def main():
 	args = get_args()
 	parse_arguments(args, db)
 
-	loop()
+	loop(db)
