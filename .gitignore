@@ -3,3 +3,4 @@ src/jams.egg-info/*
 *.pyc
 __pycache__/*
 .venv/
+lib
