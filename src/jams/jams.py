@@ -65,7 +65,7 @@ def loop(db: DbHelper):
 			music_player.play()
 			db.set('was_playing', False)
 
-		time.sleep(1)
+		time.sleep(.5)
 
 def main():
 	os.makedirs(CONF_DIR, exist_ok=True)
