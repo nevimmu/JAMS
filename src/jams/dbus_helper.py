@@ -1,4 +1,5 @@
 import dbus
+import time
 
 class DbusHelper:
 	'''This class interact with dbus MediaPlayer2 interface'''
@@ -11,21 +12,34 @@ class DbusHelper:
 	_bus = dbus.SessionBus()
 	
 	def __init__(self, service):
-		self._service = service
-		self._player = self._bus.get_object(self._service, '/org/mpris/MediaPlayer2')
-		self._interface = dbus.Interface(self._player, dbus_interface='org.freedesktop.DBus.Properties')
+		try:
+			self._service = service
+			self._player = self._bus.get_object(self._service, '/org/mpris/MediaPlayer2')
+			self._interface = dbus.Interface(self._player, dbus_interface='org.freedesktop.DBus.Properties')
+		except dbus.exceptions.DBusException as e:
+			print(f'DBUS Error: {e}')
 
 	def _get_metadata(self):
-		metadata = self._interface.GetAll('org.mpris.MediaPlayer2.Player')
-		for key, value in metadata.items():
-			if isinstance(value, dict):
-				for subk, subv in value.items():
-					self._info[subk] = subv
-			self._info[key] = value
+		if self._interface is None:
+			return
+		try:
+			metadata = self._interface.GetAll('org.mpris.MediaPlayer2.Player')
+			for key, value in metadata.items():
+				if isinstance(value, dict):
+					for subk, subv in value.items():
+						self._info[subk] = subv
+				self._info[key] = value
+		except dbus.exceptions.DBusException as e:
+			print(f'DBUS Error: {e}')
 
 	def is_playing(self):
-		self._get_metadata()
-		return self._info['PlaybackStatus'] == 'Playing'
+		try:
+			self._get_metadata()
+			if not self._info:
+				return False
+			return self._info['PlaybackStatus'] == 'Playing'
+		except dbus.exceptions.DBusException as e:
+			print(f'DBUS Error: {e}')
 
 	def get_title(self):
 		self._get_metadata()
@@ -48,17 +62,22 @@ class DbusHelper:
 def get_players() -> dict:
 	'''Get a dict of players'''
 	_players = {}
-	for session in dbus.SessionBus().list_names():
-		if 'org.mpris.MediaPlayer2' in session:
-			if 'instance' in session:
-				_players[str(session.split('.')[-2])] = session
-			else:
-				_players[str(session.split('.')[-1])] = session
+	try:
+		for session in dbus.SessionBus().list_names():
+			if 'org.mpris.MediaPlayer2' in session:
+				if 'instance' in session:
+					_players[str(session.split('.')[-2])] = session
+				else:
+					_players[str(session.split('.')[-1])] = session
+	except dbus.exceptions.DBusException as e:
+		print(f'DBUS Error: {e}')
 
 	return _players
 
 def find_player(name) -> DbusHelper:
 	'''Find a player from it's name'''
-	players = get_players()
-
-	return DbusHelper(players[name])
+	while True:
+		players = get_players()
+		if name in players:
+			return DbusHelper(players[name])
+		time.sleep(1)
