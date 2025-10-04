@@ -22,8 +22,8 @@ dependencies = [
 'Homepage' = 'https://github.com/nevimmu/jams'
 'Bug Tracker' = 'https://github.com/nevimmu/jams/issues'
 
-# [tool.setuptools.packages.find]
-# where = ["src"]
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [project.scripts]
-jams = 'jams.jams:main'
+jams = 'jams:main'
