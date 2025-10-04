@@ -1,5 +1,5 @@
 dist/*
-src/jams.egg-info/*
+src/jams.egg-info/
 *.pyc
 __pycache__/*
 .venv/
