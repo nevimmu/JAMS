@@ -8,6 +8,12 @@ This is a rewrite of an old bash script I had, I'm no bash fan and I didn't like
 
 ## Installation and use
 
+### From the AUR
+```bash 
+yay -S jams
+```
+
+### From source
 ```bash
 git clone https://github.com/nevimmu/jams
 cd jams
