@@ -7,25 +7,15 @@ from .settings import __version__, CONF_DIR
 from .dbus_helper import get_players, find_player
 from .db_helper import DbHelper
 
-def get_args():
-	'''
-	Parses the CLI arguments and returns them.
-	'''
-
-	parser = argparse.ArgumentParser(description='JAMS Auto-Mute Sometimes')
-	parser.add_argument('-s', '--setup', action='store_true', help='Setup JAMS')
-	parser.add_argument('-v', '--version', action='store_true', help='JAMS version')
-
-	return parser.parse_args()
-
-def parse_arguments(args, db):
+def parse_arguments(db):
 	'''
 	Parses the CLI arguments and acts on them.
 	'''
+	parser = argparse.ArgumentParser(description='JAMS Auto-Mute Sometimes')
+	parser.add_argument('-s', '--setup', action='store_true', help='Setup JAMS')
+	parser.add_argument('-v', '--version', action='version', version=f'JAMS v{__version__}', help='JAMS version')
 
-	if args.version:
-		print(f'JAMS v{__version__}')
-		sys.exit(0)
+	args = parser.parse_args()
 
 	if args.setup:
 		setup(db)
@@ -89,7 +79,6 @@ def main():
 	os.makedirs(CONF_DIR, exist_ok=True)
 	db = DbHelper()
 
-	args = get_args()
-	parse_arguments(args, db)
+	parse_arguments(db)
 
 	loop(db)
