@@ -2,7 +2,9 @@ import dbus
 import time
 
 class DbusHelper:
-	'''This class interact with dbus MediaPlayer2 interface'''
+	'''
+	Helper class to interact with the DBus MediaPlayer2 interface.
+	'''
 
 	_name = None
 	_service = None
@@ -20,6 +22,9 @@ class DbusHelper:
 			print(f'DBUS Error: {e}')
 
 	def _get_metadata(self):
+		'''
+		Gets the metadata from the player and stores it in the _info dictionary.
+		'''
 		if self._interface is None:
 			return
 		try:
@@ -60,7 +65,10 @@ class DbusHelper:
 
 
 def get_players() -> dict:
-	'''Get a dict of players'''
+	'''
+	Gets a dictionary of all available players.
+	The key is the player name, and the value is the DBus service name.
+	'''
 	_players = {}
 	try:
 		for session in dbus.SessionBus().list_names():
@@ -75,7 +83,10 @@ def get_players() -> dict:
 	return _players
 
 def find_player(name) -> DbusHelper:
-	'''Find a player from it's name'''
+	'''
+	Finds a player by its name and returns a DbusHelper object for it.
+	If the player is not found, it will keep trying until it is found.
+	'''
 	while True:
 		players = get_players()
 		if name in players:
