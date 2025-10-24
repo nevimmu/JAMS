@@ -11,7 +11,7 @@ authors = [
 description = 'JAMS Auto-Mute Sometimes'
 readme = 'README.md'
 license = { file = 'LICENSE' }
-requires-python = '>=3.7'
+requires-python = '>=3.8'
 dependencies = [
 	'argcomplete>=3.6.2',
 	'questionary>=2.1.0',
