@@ -31,11 +31,11 @@ def setup(db: DbHelper):
 	# Music source selection
 	music_choice = questionary.select(
 		'Choose your music source:',
-		choices=players
+		choices=list(players.keys())
 	).ask()
 
 	# Create a new list of players without the selected music source
-	browser_choices = [player for player in players if player != music_choice]
+	browser_choices = [player for player in players.keys() if player != music_choice]
 
 	# Browser source selection
 	browser_choice = questionary.select(
