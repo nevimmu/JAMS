@@ -1,16 +1,17 @@
 import dbus
 import time
+from typing import Dict, Any, Optional
 
 class DbusHelper:
 	'''
 	Helper class to interact with the DBus MediaPlayer2 interface.
 	'''
 
-	_name = None
-	_service = None
-	_player = None
-	_interface = None
-	_info = {}
+	_name: Optional[str] = None
+	_service: Optional[str] = None
+	_player: Optional[Any] = None
+	_interface: Optional[Any] = None
+	_info: Dict[str, Any] = {}
 	_bus = dbus.SessionBus()
 	
 	def __init__(self, service):
@@ -37,18 +38,19 @@ class DbusHelper:
 		except dbus.exceptions.DBusException as e:
 			print(f'DBUS Error: {e}')
 
-	def is_playing(self):
+	def is_playing(self) -> bool:
 		try:
 			self._get_metadata()
 			if not self._info:
 				return False
-			return self._info['PlaybackStatus'] == 'Playing'
-		except dbus.exceptions.DBusException as e:
+			return self._info.get('PlaybackStatus') == 'Playing'
+		except (dbus.exceptions.DBusException, KeyError) as e:
 			print(f'DBUS Error: {e}')
+			return False
 
-	def get_title(self):
+	def get_title(self) -> str:
 		self._get_metadata()
-		return self._info['xesam:title']
+		return self._info.get('xesam:title', '')
 	
 
 	def play(self):
@@ -64,25 +66,28 @@ class DbusHelper:
 		).Pause()
 
 
-def get_players() -> dict:
+def get_players() -> Dict[str, str]:
 	'''
 	Gets a dictionary of all available players.
 	The key is the player name, and the value is the DBus service name.
 	'''
-	_players = {}
+	_players: Dict[str, str] = {}
 	try:
-		for session in dbus.SessionBus().list_names():
-			if 'org.mpris.MediaPlayer2' in session:
-				if 'instance' in session:
-					_players[str(session.split('.')[-2])] = session
-				else:
-					_players[str(session.split('.')[-1])] = session
+		bus = dbus.SessionBus()
+		names = bus.list_names()
+		if names is not None:
+			for session in names:
+				if 'org.mpris.MediaPlayer2' in session:
+					if 'instance' in session:
+						_players[str(session.split('.')[-2])] = session
+					else:
+						_players[str(session.split('.')[-1])] = session
 	except dbus.exceptions.DBusException as e:
 		print(f'DBUS Error: {e}')
 
 	return _players
 
-def find_player(name) -> DbusHelper:
+def find_player(name: str) -> DbusHelper:
 	'''
 	Finds a player by its name and returns a DbusHelper object for it.
 	If the player is not found, it will keep trying until it is found.

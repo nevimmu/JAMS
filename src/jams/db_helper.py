@@ -10,19 +10,40 @@ class DbHelper():
 	def __init__(self):
 		self._conf_name = 'jams.json'
 		self._conf_file = os.path.join(CONF_DIR, self._conf_name)
+		self._template_file = os.path.join(CONF_DIR, 'jams.json.template')
 
 		# If the config file doesn't exist, create it.
 		if not os.path.isfile(self._conf_file):
 			self.create_config()
+		else:
+			# Ensure the config file is writable (fix permissions if needed)
+			self._ensure_writable()
 
 	def create_config(self):
-		config = {
-			'music': '',
-			'browser': '',
-			'was_playing': False,
-		}
+		# Check if there's a template file from home-manager
+		if os.path.isfile(self._template_file):
+			# Read the template and create a writable copy
+			import json
+			with open(self._template_file, 'r') as f:
+				config = json.load(f)
+			self._write_config(config)
+		else:
+			# Create a default config
+			config = {
+				'music': '',
+				'browser': '',
+				'was_playing': False,
+			}
+			self._write_config(config)
 
-		self._write_config(config)
+	def _ensure_writable(self):
+		'''
+		Ensures the config file is writable by setting proper permissions.
+		'''
+		if os.path.isfile(self._conf_file):
+			import stat
+			# Set read and write permissions for the owner
+			os.chmod(self._conf_file, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
 
 	def _read_config(self):
 		'''
